@@ -3,8 +3,10 @@ const axios = require('axios')
 const moment = require('moment')
 const CronJob = require('cron').CronJob;
 
+const config = require('./config')
+
 const app = express()
-const port = process.env.PORT || 8080
+const port = config.port
 
 app.use(express.json())
 
@@ -14,35 +16,29 @@ app.post('/', (req, res) => {
   const latency = req.body;
   latency.reqReceivedAt = moment()
 
-  setTimeout(() => {
-    latency.resSentAt = moment()
+  // setTimeout(() => {
+    latency.responseSentAt = moment()
     res.json(latency)
-  }, 1000*Math.floor(Math.random() * Math.floor(10)))
+  // }, 1000 * Math.floor(Math.random() * config.maxProcessingTime))
 })
 
-new CronJob('* * * * * *', function() {
-
-  axios.post('http://localhost:8080', {
+const task = () => {
+  axios.post(config.target, {
     reqSentAt: moment()
   }).then(res => {
     const latency = res.data;
     
-    latency.resReceivedAt = moment()
-    latency.resSentAt = moment(latency.resSentAt)
-    latency.reqSentAt = moment(latency.reqSentAt)
-    latency.reqReceivedAt = moment(latency.reqReceivedAt)
+    latency.responseReceivedAt = moment().toISOString()
 
-    latency.reqLatency = latency.reqReceivedAt.diff(latency.reqSentAt)
-    latency.resLatency = latency.resReceivedAt.diff(latency.resSentAt)
-    latency.latency = latency.reqLatency + latency.resLatency;
-    latency.processingTime = latency.resSentAt.diff(latency.reqReceivedAt)
-
-    latency.resReceivedAt = latency.resReceivedAt.toISOString()
-    latency.resSentAt = latency.resSentAt.toISOString()
-    latency.reqSentAt = latency.reqSentAt.toISOString()
-    latency.reqReceivedAt = latency.reqReceivedAt.toISOString()
+    latency.requestLatency = moment(latency.reqReceivedAt).diff(moment(latency.reqSentAt))
+    latency.responseLatency = moment(latency.responseReceivedAt).diff(moment(latency.responseSentAt))
+    latency.latency = latency.requestLatency + latency.responseLatency;
+    latency.processingTime = moment(latency.responseSentAt).diff(moment(latency.reqReceivedAt))
 
     console.log(latency)
   }).catch(err => console.error(err))
+}
 
-}, null, true, 'Asia/Bangkok');
+new CronJob(config.cron, task, null, true, config.tz);
+
+
