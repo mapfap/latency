@@ -8,6 +8,7 @@ const config = require('./config')
 const app = express()
 const port = config.port
 
+
 app.use(express.json())
 
 app.listen(port, () => console.log(`[sys] Express started on ${port}!`))
@@ -43,4 +44,6 @@ if (config.jobEnabled) {
   new CronJob(config.cron, task, null, true, config.tz);
 }
 
-
+if (config.db.enabled) {
+  require('./db')
+}

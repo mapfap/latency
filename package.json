@@ -17,6 +17,7 @@
     "express": "^4.17.1",
     "helmet": "^3.21.1",
     "moment": "^2.24.0",
+    "mssql": "^6.0.0",
     "passport": "^0.4.0",
     "passport-http": "^0.3.0"
   }
