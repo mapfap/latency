@@ -2,7 +2,7 @@ require('dotenv').config()
 
 const config = {
   port: process.env.PORT || 8080,
-  jobEnabled: process.env.jobEnabled || true,
+  jobEnabled: process.env.JOB_ENABLED || true,
   cron: process.env.CRON || '*/5 * * * * *',
   tz: process.env.TZ || 'Asia/Bangkok',
   target: process.env.TARGET || 'http://localhost:8080',

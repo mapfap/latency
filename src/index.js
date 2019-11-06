@@ -39,6 +39,8 @@ const task = () => {
   }).catch(err => console.error(err))
 }
 
-new CronJob(config.cron, task, null, true, config.tz);
+if (config.jobEnabled) {
+  new CronJob(config.cron, task, null, true, config.tz);
+}
 
 
